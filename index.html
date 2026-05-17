@@ -62,10 +62,10 @@
         }
 
         textarea {
-            resize: vertical;
+            resize: none;
         }
 
-        button:hover {
+        :is(button, .btn):hover {
             background-color: #f6f6f6;
         }
 
@@ -75,11 +75,11 @@
             transition: transform 0.3s;
         }
 
-        button:hover .buttonimg {
+        :is(button, .btn):hover .buttonimg {
             transform: scale(0.9) translateY(2px);
         }
 
-        button:has(.buttonimg) {
+        :is(button, .btn):has(.buttonimg) {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -119,11 +119,19 @@
     </style>
     <body>
         <header>
+            <label class="btn">
+                <input id="uploadBtn" type="file" hidden />
+                <img
+                    class="buttonimg"
+                    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXVwbG9hZC1pY29uIGx1Y2lkZS11cGxvYWQiPjxwYXRoIGQ9Ik0xMiAzdjEyIi8+PHBhdGggZD0ibTE3IDgtNS01LTUgNSIvPjxwYXRoIGQ9Ik0yMSAxNXY0YTIgMiAwIDAgMS0yIDJINWEyIDIgMCAwIDEtMi0ydi00Ii8+PC9zdmc+"
+                    alt="업로드"
+                />
+            </label>
             <button id="downloadBtn">
                 <img
                     class="buttonimg"
                     src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWRvd25sb2FkLWljb24gbHVjaWRlLWRvd25sb2FkIj48cGF0aCBkPSJNMTIgMTVWMyIvPjxwYXRoIGQ9Ik0yMSAxNXY0YTIgMiAwIDAgMS0yIDJINWEyIDIgMCAwIDEtMi0ydi00Ii8+PHBhdGggZD0ibTcgMTAgNSA1IDUtNSIvPjwvc3ZnPg=="
-                    alt="다운로"
+                    alt="다운로드"
                 />
             </button>
             <button id="plusBtn">
@@ -144,7 +152,7 @@
                 <img
                     class="buttonimg"
                     src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWVxdWFsLWljb24gbHVjaWRlLWVxdWFsIj48bGluZSB4MT0iNSIgeDI9IjE5IiB5MT0iOSIgeTI9IjkiLz48bGluZSB4MT0iNSIgeDI9IjE5IiB5MT0iMTUiIHkyPSIxNSIvPjwvc3ZnPg=="
-                    alt="글자 크기 원상복구"
+                    alt="글자 크기 원래대"
                 />
             </button>
             <button id="fontBtn">
@@ -193,6 +201,7 @@
 
         <script>
             const $ = (a) => document.querySelector(a);
+            const uploadBtn = $("#uploadBtn");
             const downloadBtn = $("#downloadBtn");
             const plusBtn = $("#plusBtn");
             const minusBtn = $("#minusBtn");
@@ -203,6 +212,8 @@
             const contentInput = $("#contentInput");
             const msgContent = $(".msg-content");
             const clearBtn = $("#clearBtn");
+            const emptyMessage = msgContent.innerText;
+            let lastSave = new Date().getSeconds();
 
             let inputFontsize = Number(
                 localStorage.getItem("font-size") || "16",
@@ -234,6 +245,27 @@
                 fontInput.value = inputFont;
             };
 
+            const updateContent = () => {
+                if (
+                    msgContent.innerHTML === emptyMessage ||
+                    msgContent.innerText.startsWith("저장됨.")
+                ) {
+                    msgContent.innerText =
+                        "저장됨. " + new Date().toLocaleTimeString();
+                }
+                localStorage.setItem("content", contentInput.value);
+                localStorage.setItem("title", titleInput.value);
+            };
+
+            let saveTimer;
+            const scheduleSave = () => {
+                clearTimeout(saveTimer);
+
+                saveTimer = setTimeout(() => {
+                    updateContent();
+                }, 1000);
+            };
+
             plusBtn.addEventListener("click", () => {
                 inputFontsize += 2;
                 updateFontsize();
@@ -253,19 +285,22 @@
                 fontInput.value = inputFont;
                 fontInput.focus();
 
-                fontInput.addEventListener("input", (e) => {
+                fontInput.oninput = (e) => {
                     inputFont = e.target.value;
                     updateFont();
-                });
-
-                fontInput.addEventListener("keydown", (e) => {
-                    if (e.key === "Enter") {
-                        msgContent.innerText = `메세지가 여기에 표시됩니다.`;
-                    }
-                });
+                };
             });
             msgclearBtn.addEventListener("click", () => {
-                msgContent.innerHTML = "메세지가 여기에 표시됩니다.";
+                msgContent.innerHTML = emptyMessage;
+            });
+            uploadBtn.addEventListener("change", async () => {
+                const file = uploadBtn.files[0];
+
+                if (!file) return;
+
+                contentInput.value = await file.text();
+                titleInput.value = file.name.replace(/\.[^.]+$/, "");
+                updateContent();
             });
             downloadBtn.addEventListener("click", () => {
                 const title = titleInput.value.trim() || "untitled";
@@ -289,12 +324,8 @@
 
                 msgContent.innerText = "다운로드 완료";
             });
-            contentInput.addEventListener("input", () => {
-                localStorage.setItem("content", contentInput.value);
-            });
-            titleInput.addEventListener("input", () => {
-                localStorage.setItem("title", titleInput.value);
-            });
+            contentInput.addEventListener("input", scheduleSave);
+            titleInput.addEventListener("input", scheduleSave);
             clearBtn.addEventListener("click", () => {
                 let yes = confirm("정말 내용을 삭제하시겠습니까?");
                 if (yes) {
@@ -302,7 +333,7 @@
                     titleInput.value = "";
                     localStorage.removeItem("content");
                     localStorage.removeItem("title");
-                    msgContent.value = "내용을 삭제했습니다.";
+                    msgContent.innerText = "내용을 삭제했습니다.";
                 }
             });
         </script>
