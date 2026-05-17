@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>textedit</title>
+    </head>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            font-family: sans-serif;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        header {
+            display: flex;
+            overflow-x: scroll;
+            scrollbar-width: none;
+        }
+
+        header > button,
+        header > input,
+        header > .btn {
+            flex: 1;
+            height: 40px;
+            border-bottom: none;
+        }
+
+        :is(header > button, header > input, .btn):not(:last-child) {
+            border-right: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 10px 5%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+        }
+
+        input,
+        textarea,
+        button,
+        .btn {
+            outline: none;
+            border: 1px solid #d6d6d6;
+            background-color: transparent;
+            padding: 3px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        button:hover {
+            background-color: #f6f6f6;
+        }
+
+        .buttonimg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s;
+        }
+
+        button:hover .buttonimg {
+            transform: scale(0.9) translateY(2px);
+        }
+
+        button:has(.buttonimg) {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        :is(input, textarea):hover {
+            border: 1px solid #c6c6c6;
+        }
+
+        #contentInput {
+            flex: 1;
+        }
+
+        .msg {
+            display: flex;
+            align-items: center;
+            padding-bottom: 10px;
+        }
+        .msg-content {
+            padding: 3px;
+            flex: 1;
+            border: 1px solid #d6d6d6;
+            height: 100%;
+        }
+        #msgclearBtn {
+            height: 100%;
+            border-left: none;
+        }
+        .messages {
+            display: none;
+        }
+        .font-setting {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+    </style>
+    <body>
+        <header>
+            <button id="downloadBtn">
+                <img
+                    class="buttonimg"
+                    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWRvd25sb2FkLWljb24gbHVjaWRlLWRvd25sb2FkIj48cGF0aCBkPSJNMTIgMTVWMyIvPjxwYXRoIGQ9Ik0yMSAxNXY0YTIgMiAwIDAgMS0yIDJINWEyIDIgMCAwIDEtMi0ydi00Ii8+PHBhdGggZD0ibTcgMTAgNSA1IDUtNSIvPjwvc3ZnPg=="
+                    alt="다운로"
+                />
+            </button>
+            <button id="plusBtn">
+                <img
+                    class="buttonimg"
+                    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXBsdXMtaWNvbiBsdWNpZGUtcGx1cyI+PHBhdGggZD0iTTUgMTJoMTQiLz48cGF0aCBkPSJNMTIgNXYxNCIvPjwvc3ZnPg=="
+                    alt="글자 크기 크게"
+                />
+            </button>
+            <button id="minusBtn">
+                <img
+                    class="buttonimg"
+                    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLW1pbnVzLWljb24gbHVjaWRlLW1pbnVzIj48cGF0aCBkPSJNNSAxMmgxNCIvPjwvc3ZnPg=="
+                    alt="글자 크기 작게"
+                />
+            </button>
+            <button id="resetBtn">
+                <img
+                    class="buttonimg"
+                    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWVxdWFsLWljb24gbHVjaWRlLWVxdWFsIj48bGluZSB4MT0iNSIgeDI9IjE5IiB5MT0iOSIgeTI9IjkiLz48bGluZSB4MT0iNSIgeDI9IjE5IiB5MT0iMTUiIHkyPSIxNSIvPjwvc3ZnPg=="
+                    alt="글자 크기 원상복구"
+                />
+            </button>
+            <button id="fontBtn">
+                <img
+                    class="buttonimg"
+                    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWNhc2Utc2Vuc2l0aXZlLWljb24gbHVjaWRlLWNhc2Utc2Vuc2l0aXZlIj48cGF0aCBkPSJtMiAxNiA0LjAzOS05LjY5YS41LjUgMCAwIDEgLjkyMyAwTDExIDE2Ii8+PHBhdGggZD0iTTIyIDl2NyIvPjxwYXRoIGQ9Ik0zLjMwNCAxM2g2LjM5MiIvPjxjaXJjbGUgY3g9IjE4LjUiIGN5PSIxMi41IiByPSIzLjUiLz48L3N2Zz4="
+                    alt="폰트 선택"
+                />
+            </button>
+            <button id="clearBtn">
+                <img
+                    class="buttonimg"
+                    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNlMDFiMjQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS10cmFzaC1pY29uIGx1Y2lkZS10cmFzaCI+PHBhdGggZD0iTTE5IDZ2MTRhMiAyIDAgMCAxLTIgMkg3YTIgMiAwIDAgMS0yLTJWNiIvPjxwYXRoIGQ9Ik0zIDZoMTgiLz48cGF0aCBkPSJNOCA2VjRhMiAyIDAgMCAxIDItMmg0YTIgMiAwIDAgMSAyIDJ2MiIvPjwvc3ZnPg=="
+                    alt="내용 지우기"
+                />
+            </button>
+        </header>
+
+        <div class="msg">
+            <div class="msg-content">메세지가 여기에 표시됩니다.</div>
+            <button id="msgclearBtn">
+                <img
+                    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXgtaWNvbiBsdWNpZGUteCI+PHBhdGggZD0iTTE4IDYgNiAxOCIvPjxwYXRoIGQ9Im02IDYgMTIgMTIiLz48L3N2Zz4="
+                    alt="close"
+                    class="buttonimg"
+                />
+            </button>
+        </div>
+
+        <main>
+            <input
+                type="text"
+                name="title"
+                id="titleInput"
+                placeholder="제목"
+            />
+            <textarea name="content" id="contentInput"></textarea>
+        </main>
+
+        <div class="messages">
+            <div class="font-setting">
+                <span>폰트:</span>
+                <input type="text" id="fontInput" />
+            </div>
+        </div>
+
+        <script>
+            const $ = (a) => document.querySelector(a);
+            const downloadBtn = $("#downloadBtn");
+            const plusBtn = $("#plusBtn");
+            const minusBtn = $("#minusBtn");
+            const resetBtn = $("#resetBtn");
+            const msgclearBtn = $("#msgclearBtn");
+            const fontBtn = $("#fontBtn");
+            const titleInput = $("#titleInput");
+            const contentInput = $("#contentInput");
+            const msgContent = $(".msg-content");
+            const clearBtn = $("#clearBtn");
+
+            let inputFontsize = Number(
+                localStorage.getItem("font-size") || "16",
+            );
+            let inputFont = localStorage.getItem("font") || "sans-serif";
+
+            fontBtn.title = inputFont;
+            [minusBtn, plusBtn, resetBtn].forEach((it) => {
+                it.title = inputFontsize;
+            });
+
+            contentInput.value = localStorage.getItem("content") || "";
+            titleInput.value = localStorage.getItem("title") || "";
+
+            const updateFontsize = () => {
+                titleInput.style.fontSize = `${inputFontsize}px`;
+                contentInput.style.fontSize = `${inputFontsize}px`;
+                msgContent.innerText = "글자 크기: " + inputFontsize;
+                localStorage.setItem("font-size", inputFontsize);
+            };
+
+            const updateFont = () => {
+                titleInput.style.fontFamily = inputFont;
+                contentInput.style.fontFamily = inputFont;
+
+                localStorage.setItem("font", inputFont);
+
+                let fontInput = $("#fontInput");
+                fontInput.value = inputFont;
+            };
+
+            plusBtn.addEventListener("click", () => {
+                inputFontsize += 2;
+                updateFontsize();
+            });
+            minusBtn.addEventListener("click", () => {
+                inputFontsize = Math.max(1, inputFontsize - 2);
+                updateFontsize();
+            });
+            resetBtn.addEventListener("click", () => {
+                inputFontsize = 16;
+                updateFontsize();
+            });
+            fontBtn.addEventListener("click", () => {
+                msgContent.innerHTML = $(".font-setting").innerHTML;
+
+                const fontInput = $("#fontInput");
+                fontInput.value = inputFont;
+                fontInput.focus();
+
+                fontInput.addEventListener("input", (e) => {
+                    inputFont = e.target.value;
+                    updateFont();
+                });
+
+                fontInput.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") {
+                        msgContent.innerText = `메세지가 여기에 표시됩니다.`;
+                    }
+                });
+            });
+            msgclearBtn.addEventListener("click", () => {
+                msgContent.innerHTML = "메세지가 여기에 표시됩니다.";
+            });
+            downloadBtn.addEventListener("click", () => {
+                const title = titleInput.value.trim() || "untitled";
+                const content = contentInput.value;
+
+                const blob = new Blob([content], {
+                    type: "text/plain;charset=utf-8",
+                });
+
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${title}.txt`;
+
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                URL.revokeObjectURL(url);
+
+                msgContent.innerText = "다운로드 완료";
+            });
+            contentInput.addEventListener("input", () => {
+                localStorage.setItem("content", contentInput.value);
+            });
+            titleInput.addEventListener("input", () => {
+                localStorage.setItem("title", titleInput.value);
+            });
+            clearBtn.addEventListener("click", () => {
+                let yes = confirm("정말 내용을 삭제하시겠습니까?");
+                if (yes) {
+                    contentInput.value = "";
+                    titleInput.value = "";
+                    localStorage.removeItem("content");
+                    localStorage.removeItem("title");
+                    msgContent.value = "내용을 삭제했습니다.";
+                }
+            });
+        </script>
+    </body>
+</html>
