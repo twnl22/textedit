@@ -246,13 +246,9 @@
             };
 
             const updateContent = () => {
-                if (
-                    msgContent.innerHTML === emptyMessage ||
-                    msgContent.innerText.startsWith("저장됨.")
-                ) {
-                    msgContent.innerText =
-                        "저장됨. " + new Date().toLocaleTimeString();
-                }
+                msgContent.innerText =
+                    "저장됨. " + new Date().toLocaleTimeString();
+
                 localStorage.setItem("content", contentInput.value);
                 localStorage.setItem("title", titleInput.value);
             };
